@@ -93,14 +93,26 @@ functions:
 #    environment:
 #      variable2: value2
 
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+#you can add CloudFormation resource templates here
+resources:
+  Resources:
+    taskdefinition: 
+      Type: "AWS::ECS::TaskDefinition"
+      Properties: 
+        RequiresCompatibilities:
+          # - "EC2"
+          - "FARGATE"
+        Cpu: "256"
+        Memory: "512"
+        NetworkMode: "awsvpc"
+        ContainerDefinitions: 
+          - 
+            Name: "serverless-example-container"
+            Image: "787273180677.dkr.ecr.us-east-1.amazonaws.com/example-app:latest"
+            PortMappings:
+              - ContainerPort: 8080
+              - Protocol: "tcp"
+            Essential: "true"
+            Environment:
+              - Name: AWS_REGION
+                Value: us-east-1
