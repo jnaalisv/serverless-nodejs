@@ -1,0 +1,3 @@
+Resources:
+  BackendDeploymentBucket:
+    Type: "AWS::S3::Bucket"
