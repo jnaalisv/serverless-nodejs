@@ -1,0 +1,29 @@
+# choices
+1. Spring Boot application to AWS BeanStalk (with CF)
+2. Spring Boot application to AWS Fargate (with CF)
+3. Lambda architecture
+
+# deploy process
+- build jar/docker image
+- deploy jar docker image to S3/ECR
+- deploy lambdas with serverless and Spring Boot app as a CloudFormation resource that references the lambdas http apis
+
+# Lambda architecture
+1. lambda[publicCustomerRequest] http-api, put request into [requestQueue], or just async execute request
+2. lambda[executeRequest] fetch data and put data into [reportDynamoDB]
+3. lambda[adminApproveRead], http api to read from [reportDynamoDB]
+4. lambda[adminApproveWrite], http api to write to [reportDynamoDB]
+5. lambda[publicCustomerRead] http api to read from [reportDynamoDB]
+
+##### required http endpoints:
+1. [customer-ui] POST customer-data-request/{customerId} -> {requestID}
+   \___ [http api in publicCreateLambda] -> requestQueue -> requestExecLambda -> dynamoDB, notifyQueue
+
+2. [admin-ui]     GET open-customer-data-requests        -> [list of requests]
+   \___ [http api in adminReadLambda] -> dynamoDB
+
+3. [admin-ui]     PUT update-customer-data-request/{requestID}
+   \___ [http api in adminWriteLambda] -> dynamoDB
+
+4. [customer-ui]  GET customer-data/{requestID}
+   \___ [http api in publicReadLambda] -> dynamoDB
