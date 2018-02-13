@@ -5,6 +5,7 @@ provider:
 
 functions:
   hello:
+    name: HelloLambda
     handler: handler.hello
     events:
       - http: GET hello
@@ -12,6 +13,25 @@ functions:
 # these resources work only if the application is already deployed to S3 bucket
 # 1. cloudformation create stack
 # 2. aws s3 cp build/libs/proto.jar s3://bstalk-backenddeploymentbucket-14hs7m8a18wbe/proto.jar
+  another:
+    name: AnotherLambda
+    handler: handler.another
+    events:
+      - http: GET another
+    environment:
+      LAMBDA_ARN:
+        'Fn::GetAtt': [HelloLambdaFunction, Arn]
+      SERVICE:
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiGatewayRestApi"
+            },
+            ".execute-api.us-east-1.amazonaws.com/dev"
+          ]
+        ]
 
 resources:
   Resources:
@@ -65,4 +85,7 @@ resources:
         TemplateName:
           Ref: "SpringBootBeanStalkConfigurationTemplate"
         VersionLabel:
-          Ref: "SpringBootApplicationVersion"
+          Ref: "SpringBootApplicationVersion"  Outputs:
+    HelloUrl:
+      Value:
+        'Fn::GetAtt': [HelloLambdaFunction, Arn]
